@@ -11,7 +11,7 @@ const (
 	ASSIGN = "="
 	PLUS   = "+"
 
-	// delimeter
+	// delimeters
 	COMMA     = ","
 	SEMICOLON = ";"
 
@@ -19,6 +19,10 @@ const (
 	RPAREN = ")"
 	LBRACE = "{"
 	RBRACE = "}"
+
+	//keywords
+	FUNCTION = "FUNCTION"
+	LET      = "LET"
 )
 
 type TokenType string
