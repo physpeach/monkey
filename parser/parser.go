@@ -42,6 +42,10 @@ func New(l *lexer.Lexer) *Parser {
 	}
 	p.nextToken()
 	p.nextToken()
+	//At this point, curToken points the first token.
+
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
 
 	return p
 }
@@ -126,6 +130,11 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 	return stmt
 }
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+}
+
 func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 	if prefix == nil {
