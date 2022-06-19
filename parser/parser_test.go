@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
+	"strconv"
 	"testing"
 )
 
@@ -126,6 +127,41 @@ func TestIdentifierExpression(t *testing.T) {
 	}
 }
 
+func TestBooleanExpression(t *testing.T) {
+
+	booleanTests := []struct {
+		input    string
+		expected bool
+	}{
+		{"true", true},
+		{"false", false},
+	}
+
+	for _, tt := range booleanTests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+		if len(program.Statements) != 1 {
+			t.Fatalf("program has not enough statements. expected=%d, got=%d", 1, len(program.Statements))
+		}
+
+		stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+		}
+
+		b, ok := stmt.Expression.(*ast.Boolean)
+		if !ok {
+			t.Fatalf("exp. not *ast.Boolean. got=%T", stmt.Expression)
+		}
+
+		if testBoolean(t, b, tt.expected) {
+			return
+		}
+	}
+}
+
 func TestIntegerLiteralExpression(t *testing.T) {
 	input := "34;"
 
@@ -241,6 +277,24 @@ func TestParsingInfixExpressions(t *testing.T) {
 			return
 		}
 	}
+}
+
+func testBoolean(t *testing.T, b ast.Expression, val bool) bool {
+	bl, ok := b.(*ast.Boolean)
+	if !ok {
+		t.Errorf("b not *ast.Boolean. got=%T", b)
+		return false
+	}
+
+	if bl.Value != val {
+		t.Errorf("bl.Value not %t. got=%t", val, bl.Value)
+		return false
+	}
+
+	if bl.TokenLiteral() != strconv.FormatBool(val) {
+		t.Errorf("boo.TokenLiteral is not %t, got=%s", val, bl.TokenLiteral())
+	}
+	return true
 }
 
 func testIntegerLiteral(t *testing.T, il ast.Expression, val int64) bool {
