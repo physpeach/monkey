@@ -156,7 +156,7 @@ func TestBooleanExpression(t *testing.T) {
 			t.Fatalf("exp. not *ast.Boolean. got=%T", stmt.Expression)
 		}
 
-		if testBoolean(t, b, tt.expected) {
+		if testBooleanLiteral(t, b, tt.expected) {
 			return
 		}
 	}
@@ -279,7 +279,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 	}
 }
 
-func testBoolean(t *testing.T, b ast.Expression, val bool) bool {
+func testBooleanLiteral(t *testing.T, b ast.Expression, val bool) bool {
 	bl, ok := b.(*ast.Boolean)
 	if !ok {
 		t.Errorf("b not *ast.Boolean. got=%T", b)
