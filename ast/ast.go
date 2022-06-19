@@ -41,6 +41,21 @@ func (p *Program) String() string {
 	return out.String()
 }
 
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+func (bs *BlockStatement) statementNode()       {}
+func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
+func (bs *BlockStatement) String() string {
+	str := ""
+	for _, s := range bs.Statements {
+		str += s.String()
+	}
+	return str
+}
+
 type LetStatement struct {
 	Token token.Token // token.Let Token
 	Name  *Identifier
@@ -147,4 +162,17 @@ func (ie *InfixExpression) expressionNode()      {}
 func (ie *InfixExpression) TokenLiteral() string { return ie.Token.Literal }
 func (ie *InfixExpression) String() string {
 	return "(" + ie.Left.String() + " " + ie.Operator + " " + ie.Right.String() + ")"
+}
+
+type IfExpression struct {
+	Token       token.Token // if token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ie *IfExpression) expressionNode()      {}
+func (ie *IfExpression) TokenLiteral() string { return ie.Token.Literal }
+func (ie *IfExpression) String() string {
+	return "if" + ie.Condition.String() + " " + ie.Consequence.String() + " " + ie.Alternative.String()
 }
