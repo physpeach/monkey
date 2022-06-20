@@ -2,6 +2,8 @@ package object
 
 import (
 	"fmt"
+	"monkey/ast"
+	"strings"
 )
 
 type ObjectType string
@@ -9,6 +11,7 @@ type ObjectType string
 const (
 	ERROR_OBJ        = "ERROR"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
+	FUNCTION_OBJ     = "FUNCTION"
 	BOOLEAN_OBJ      = "BOOLEAN"
 	INTEGER_OBJ      = "INTEGER"
 	NULL_OBJ         = "NULL"
@@ -31,6 +34,21 @@ type ReturnValue struct {
 
 func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
 func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
+
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+func (f *Function) Type() ObjectType { return FUNCTION_OBJ }
+func (f *Function) Inspect() string {
+	params := []string{}
+	for _, p := range f.Parameters {
+		params = append(params, p.String())
+	}
+	return "fn(" + strings.Join(params, ", ") + ") {\n" + f.Body.String() + "\n}"
+}
 
 type Boolean struct {
 	Value bool
