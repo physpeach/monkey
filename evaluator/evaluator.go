@@ -30,13 +30,15 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(val) {
 			return val
 		}
-		//Todo:なんかやる
+		env.Set(node.Name.Value, val)
 	case *ast.ReturnStatement:
 		val := Eval(node.Value, env)
 		if isError(val) {
 			return val
 		}
 		return &object.ReturnValue{Value: val}
+	case *ast.Identifier:
+		return evalIdentifier(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 	case *ast.IfExpression:
@@ -99,6 +101,14 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 		}
 	}
 	return result
+}
+
+func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object {
+	val, ok := env.Get(node.Value)
+	if !ok {
+		return newError("identifier not found: " + node.Value)
+	}
+	return val
 }
 
 func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
