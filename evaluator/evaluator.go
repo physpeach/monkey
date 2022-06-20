@@ -25,6 +25,12 @@ func Eval(node ast.Node) object.Object {
 		return evalProgram(node)
 	case *ast.BlockStatement:
 		return evalBlockStatement(node)
+	case *ast.LetStatement:
+		val := Eval(node.Value)
+		if isError(val) {
+			return val
+		}
+		//Todo:なんかやる
 	case *ast.ReturnStatement:
 		val := Eval(node.Value)
 		if isError(val) {
