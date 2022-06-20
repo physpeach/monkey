@@ -41,6 +41,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifier(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
+	case *ast.FunctionLiteral:
+		return &object.Function{Parameters: node.Parameters, Env: env, Body: node.Body}
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
 	case *ast.PrefixExpression:
