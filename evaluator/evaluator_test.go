@@ -78,8 +78,8 @@ func TestBangOperetor(t *testing.T) {
 		{"!true", false},
 		{"!false", true},
 		{"!5", false},
-		{"!!true", false},
-		{"!!false", true},
+		{"!!true", true},
+		{"!!false", false},
 		{"!!5", true},
 	}
 
