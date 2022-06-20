@@ -7,15 +7,23 @@ import (
 type ObjectType string
 
 const (
-	BOOLEAN_OBJ = "BOOLEAN"
-	INTEGER_OBJ = "INTEGER"
-	NULL_OBJ    = "NULL"
+	RETURN_VALUE_OBJ = "RETURN_VALUE"
+	BOOLEAN_OBJ      = "BOOLEAN"
+	INTEGER_OBJ      = "INTEGER"
+	NULL_OBJ         = "NULL"
 )
 
 type Object interface {
 	Type() ObjectType
 	Inspect() string
 }
+
+type ReturnValue struct {
+	Value Object
+}
+
+func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
+func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
 
 type Boolean struct {
 	Value bool
