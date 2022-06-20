@@ -11,9 +11,18 @@ import (
 func TestLetStatements(t *testing.T) {
 	input := `
 let x = 5;
-let y = 10;
-let foobar = 838383;
+let y = true;
+let foobar = y;
 `
+	tests := []struct {
+		expectedIdentifier string
+		expectedValue      interface{}
+	}{
+		{"x", 5},
+		{"y", true},
+		{"foobar", "y"},
+	}
+
 	l := lexer.New(input)
 	p := New(l)
 
@@ -27,17 +36,14 @@ let foobar = 838383;
 		t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
 	}
 
-	tests := []struct {
-		expectedIdentifier string
-	}{
-		{"x"},
-		{"y"},
-		{"foobar"},
-	}
-
 	for i, tt := range tests {
 		stmt := program.Statements[i]
 		if testLetStatement(t, stmt, tt.expectedIdentifier) {
+			return
+		}
+
+		val := stmt.(*ast.LetStatement).Value
+		if !testLiteralExpression(t, val, tt.expectedValue) {
 			return
 		}
 	}
@@ -71,9 +77,10 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 func TestReturnStatements(t *testing.T) {
 	input := `
 return 5;
-return 10;
-return 993322;
+return true;
+return y;
 `
+	expectedValues := []interface{}{5, true, "y"}
 	l := lexer.New(input)
 	p := New(l)
 
@@ -88,14 +95,19 @@ return 993322;
 		t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
 	}
 
-	for _, stmt := range program.Statements {
-		returnStmt, ok := stmt.(*ast.ReturnStatement)
+	for i, testVal := range expectedValues {
+		stmt, ok := program.Statements[i].(*ast.ReturnStatement)
 		if !ok {
-			t.Errorf("stmt not *ast.returnStatement. got=%T", stmt)
+			t.Errorf("stmt not *ast.returnStatement. got=%T", program.Statements[0])
 			continue
 		}
-		if returnStmt.TokenLiteral() != "return" {
-			t.Errorf("returnStmt.TokenLiteral not 'return', got %q", returnStmt.TokenLiteral())
+		if stmt.TokenLiteral() != "return" {
+			t.Errorf("returnStmt.TokenLiteral not 'return', got %q", stmt.TokenLiteral())
+		}
+		val := stmt.Value
+		fmt.Println(val, testVal)
+		if !testLiteralExpression(t, val, testVal) {
+			return
 		}
 	}
 }
