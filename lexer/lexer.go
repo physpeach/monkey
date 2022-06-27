@@ -81,6 +81,9 @@ func (l *Lexer) NextToken() token.Token {
 		ret = newToken(token.LBRACE, l.ch)
 	case '}':
 		ret = newToken(token.RBRACE, l.ch)
+	case '"':
+		ret.Type = token.STRING
+		ret.Literal = l.readString()
 	case 0:
 		ret.Literal = ""
 		ret.Type = token.EOF
@@ -105,6 +108,18 @@ func (l *Lexer) NextToken() token.Token {
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	for {
+		l.readChar()
+		//Todo: EOFならエラーを返す。
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+	return l.input[position:l.position]
 }
 
 func (l *Lexer) readIdentifier() string {
