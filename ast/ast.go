@@ -11,16 +11,6 @@ type Node interface {
 	String() string
 }
 
-type Statement interface {
-	Node
-	statementNode()
-}
-
-type Expression interface {
-	Node
-	expressionNode()
-}
-
 type Program struct {
 	Statements []Statement
 }
@@ -40,6 +30,16 @@ func (p *Program) String() string {
 		out.WriteString(s.String())
 	}
 	return out.String()
+}
+
+type Statement interface {
+	Node
+	statementNode()
+}
+
+type Expression interface {
+	Node
+	expressionNode()
 }
 
 type BlockStatement struct {
@@ -115,14 +115,18 @@ func (es *ExpressionStatement) String() string {
 	return ""
 }
 
-type Identifier struct {
-	Token token.Token // token.IDENT Token
-	Value string
+type IfExpression struct {
+	Token       token.Token // if token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
 }
 
-func (i *Identifier) expressionNode()      {}
-func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
-func (i *Identifier) String() string       { return i.Value }
+func (ie *IfExpression) expressionNode()      {}
+func (ie *IfExpression) TokenLiteral() string { return ie.Token.Literal }
+func (ie *IfExpression) String() string {
+	return "if" + ie.Condition.String() + " " + ie.Consequence.String() + " " + ie.Alternative.String()
+}
 
 type FunctionLiteral struct {
 	Token      token.Token
@@ -140,23 +144,22 @@ func (fl *FunctionLiteral) String() string {
 	return fl.TokenLiteral() + "(" + strings.Join(params, ", ") + ")" + fl.Body.String()
 }
 
-type Boolean struct {
-	Token token.Token
-	Value bool
+type CallExpression struct {
+	Token     token.Token
+	Function  Expression // Identifier or FunctionLiteral
+	Arguments []Expression
 }
 
-func (b *Boolean) expressionNode()      {}
-func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
-func (b *Boolean) String() string       { return b.Token.Literal }
+func (ce *CallExpression) expressionNode()      {}
+func (ce *CallExpression) TokenLiteral() string { return ce.Token.Literal }
+func (ce *CallExpression) String() string {
+	args := []string{}
+	for _, a := range ce.Arguments {
+		args = append(args, a.String())
+	}
 
-type IntegerLiteral struct {
-	Token token.Token
-	Value int64
+	return ce.Function.String() + "(" + strings.Join(args, ", ") + ")"
 }
-
-func (il *IntegerLiteral) expressionNode()      {}
-func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
-func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 
 type PrefixExpression struct {
 	Token    token.Token // ex.) '!', '-'
@@ -181,32 +184,29 @@ func (ie *InfixExpression) String() string {
 	return "(" + ie.Left.String() + " " + ie.Operator + " " + ie.Right.String() + ")"
 }
 
-type IfExpression struct {
-	Token       token.Token // if token
-	Condition   Expression
-	Consequence *BlockStatement
-	Alternative *BlockStatement
+type Identifier struct {
+	Token token.Token // token.IDENT Token
+	Value string
 }
 
-func (ie *IfExpression) expressionNode()      {}
-func (ie *IfExpression) TokenLiteral() string { return ie.Token.Literal }
-func (ie *IfExpression) String() string {
-	return "if" + ie.Condition.String() + " " + ie.Consequence.String() + " " + ie.Alternative.String()
+func (i *Identifier) expressionNode()      {}
+func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+func (i *Identifier) String() string       { return i.Value }
+
+type Boolean struct {
+	Token token.Token
+	Value bool
 }
 
-type CallExpression struct {
-	Token     token.Token
-	Function  Expression // Identifier or FunctionLiteral
-	Arguments []Expression
+func (b *Boolean) expressionNode()      {}
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) String() string       { return b.Token.Literal }
+
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
 }
 
-func (ce *CallExpression) expressionNode()      {}
-func (ce *CallExpression) TokenLiteral() string { return ce.Token.Literal }
-func (ce *CallExpression) String() string {
-	args := []string{}
-	for _, a := range ce.Arguments {
-		args = append(args, a.String())
-	}
-
-	return ce.Function.String() + "(" + strings.Join(args, ", ") + ")"
-}
+func (il *IntegerLiteral) expressionNode()      {}
+func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *IntegerLiteral) String() string       { return il.Token.Literal }
